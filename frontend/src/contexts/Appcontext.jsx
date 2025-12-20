@@ -14,7 +14,7 @@ export const AppcontextProvider = ({ children }) => {
     const [theme,settheme]=useState(localStorage.getItem("theme") || "light");
 
     const fetchUser = ()=>{
-        setuser(dummyUserData);
+        setuser();
     };
     const fetchUserchats=()=>{
         setchats(dummyChats);

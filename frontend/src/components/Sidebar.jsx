@@ -4,20 +4,20 @@ import { assets } from "../assets/assets";
 import moment from "moment";
 import { Navigate } from "react-router-dom";
 
-const Sidebar = () => {
+const Sidebar = ({menuopen,setmenuopen}) => {
   const { theme, setselectedchat, chats, settheme, user, navigate } =
     useAppContext();
   const [search, setsearch] = useState("");
 
   return (
     <div
-      className="
+      className={`
       flex flex-col h-screen min-w-72 p-5
       dark:bg-gradient-to-b dark:from-[#242124]/30 dark:to-[#000000]/30
       border-r border-[#80609F]/30 backdrop-blur-3xl
       transition-all duration-500
-      max-md:absolute left-0 z-10
-    "
+      max-md:absolute left-0 z-10 ${!menuopen && 'max-md:-translate-x-full'}`
+    }
     >
       {/* logo */}
       <img
@@ -64,7 +64,7 @@ const Sidebar = () => {
         : chat.name.toLowerCase().includes(search.toLowerCase())
     )
     .map((chat) => (
-      <div
+      <div onClick={()=>{setselectedchat(chat); navigate("/");setmenuopen(false)}}
         key={chat._id}
         className="p-2 px-4 dark:bg-[#57317C]/10 border border-gray-300 dark:border-[#80609f]/15 rounded-md cursor-pointer flex justify-between group mb-2"
       >
@@ -90,8 +90,8 @@ const Sidebar = () => {
 
       {/* community images */}
       <div
-        onClick={() => navigate("/commmunity")}
-        className="flex items-center gap-2 p-3 mt-4 border border-gray-300 dark:border-white/15 rounded-md cursor-pointer hover:scale-103 transition-all"
+        onClick={() =>{ navigate("/community");setmenuopen(false)}}
+        className="flex items-center gap-2 p-3 mt-1 border border-gray-300 dark:border-white/15 rounded-md cursor-pointer hover:scale-103 transition-all"
       >
         <img
           src={assets.gallery_icon}
@@ -104,8 +104,8 @@ const Sidebar = () => {
       </div>
       {/* credit purchase option */}
       <div
-        onClick={() => navigate("/credits")}
-        className="flex items-center gap-2 p-3 mt-4 border border-gray-300 dark:border-white/15 rounded-md cursor-pointer hover:scale-103 transition-all"
+        onClick={() =>{ navigate("/credits");setmenuopen(false)}}
+        className="flex items-center gap-2 p-3 mt-1 border border-gray-300 dark:border-white/15 rounded-md cursor-pointer hover:scale-103 transition-all"
       >
         <img src={assets.diamond_icon} className="w-4.5 dark:invert" alt="" />
         <div className="flex flex-col text-sm">
@@ -119,7 +119,7 @@ const Sidebar = () => {
 
 
       {/* dark mode toggle */}
-      <div className="flex items-center justify-between gap-2 p-3 mt-4 border border-gray-300 dark:border-white/15 rounded-md">
+      <div className="flex items-center justify-between gap-2 p-3 mt-1 border border-gray-300 dark:border-white/15 rounded-md">
         <div className="flex items-center gap-2 text-sm">
           <img src={assets.theme_icon} className="w-4 not-dark:invert" alt="" />
           <p>Dark mode</p>
@@ -138,7 +138,7 @@ const Sidebar = () => {
 
            {/* user account  */}
         <div
-        className="flex items-center gap-3 p-3 mt-4 border border-gray-300 dark:border-white/15 rounded-md cursor-pointer group"
+        className="flex items-center gap-3 p-3 mt-1 border border-gray-300 dark:border-white/15 rounded-md cursor-pointer group"
       >
         <img
           src={assets.user_icon}
@@ -148,6 +148,8 @@ const Sidebar = () => {
           <p>{user?user.name:"Login your account"}</p>
           {user && <img src={assets.logout_icon} className="h-5 cursor-pointer hidden not-dark:invert group-hover:block"/>}
       </div>
+
+      <img onClick={()=>setmenuopen(false)} src={assets.close_icon} className="absolute top-3 right-3 w-5 h-5 cursor-pointer md:hidden not-dark:invert" alt="" />
  
     </div>
   );
