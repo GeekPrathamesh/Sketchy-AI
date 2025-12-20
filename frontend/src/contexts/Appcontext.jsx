@@ -14,11 +14,11 @@ export const AppcontextProvider = ({ children }) => {
     const [theme,settheme]=useState(localStorage.getItem("theme") || "light");
 
     const fetchUser = ()=>{
-        setuser();
+        setuser(dummyUserData);
     };
     const fetchUserchats=()=>{
         setchats(dummyChats);
-        setselectedchat(dummyChats[0]);
+        setselectedchat(null);
     }
     useEffect(()=>{
         fetchUser();

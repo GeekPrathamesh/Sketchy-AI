@@ -5,6 +5,8 @@ import Message from "./Message";
 
 const Chatbox = () => {
   const containerRef = useRef(null);
+  const textareaRef = useRef(null);
+
   const { selectedchat, theme } = useAppContext();
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -31,6 +33,7 @@ const Chatbox = () => {
       });
     }
   }, [messages]);
+
   return (
     <div className="flex flex-1 justify-between m-5 md:m-10 xl:mx-30 max-md:mt-14 2xl:pr-20 flex-col  ">
       {/* chat messages    */}
@@ -77,7 +80,7 @@ const Chatbox = () => {
       {/* prompt for chatting section  */}
       <form
         onSubmit={onsubmit}
-        className="bg-primary/20 dark:bg-[#583C79]/30 border border-primary dark:border-[#80609F]/30 rounded-full w-full max-w-2xl p-3 pl-4 mx-auto flex gap-4 items-center"
+        className="bg-primary/20 dark:bg-[#583C79]/30 border border-primary dark:border-[#80609F]/30 rounded-2xl w-full max-w-2xl p-3 pl-4 mx-auto flex gap-4 items-center"
       >
         <select
           className="text-sm pl-3 pr-2 outline-null"
@@ -91,14 +94,27 @@ const Chatbox = () => {
             Image
           </option>
         </select>
-        <input
-          type="text"
+        <textarea
+          ref={textareaRef}
           placeholder="enter your prompt here.."
-          className="flex-1 w-full text-sm outline-none"
+          className="flex-1 w-full text-md outline-none resize-none overflow-y-auto bg-transparent"
+          rows={1}
           value={prompt}
-          onChange={() => setpromt(e.target.value)}
-          required
+          onChange={(e) => {
+            setpromt(e.target.value);
+
+            const el = textareaRef.current;
+            el.style.height = "auto";
+            el.style.height = Math.min(el.scrollHeight, 160) + "px";
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              onsubmit(e);
+            }
+          }}
         />
+
         <button disabled={loading}>
           <img
             src={loading ? assets.stop_icon : assets.send_icon}
