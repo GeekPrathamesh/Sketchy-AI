@@ -106,6 +106,7 @@ export const AppcontextProvider = ({ children }) => {
   }, [user]);
   let value = {
     navigate,
+    fetchUser,
     user,
     setuser,
     chats,

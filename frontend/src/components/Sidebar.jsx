@@ -115,15 +115,15 @@ const Sidebar = ({ menuopen, setmenuopen }) => {
                 setmenuopen(false);
               }}
               key={chat._id}
-              className={`p-2 px-4 border rounded-md cursor-pointer flex justify-between group mb-2
-      ${
-        selectedchat?._id === chat._id
-          ? "bg-purple-600/20 border-purple-500 dark:bg-[#57317C]/30 dark:border-[#80609f]"
-          : "dark:bg-[#57317C]/10 border-gray-300 dark:border-[#80609f]/15"
-      }
-    `}
+              className={`p-2 px-4 border rounded-md cursor-pointer flex items-center gap-3 group mb-2
+  ${
+    selectedchat?._id === chat._id
+      ? "bg-purple-600/20 border-purple-500 dark:bg-[#57317C]/30 dark:border-[#80609f]"
+      : "dark:bg-[#57317C]/10 border-gray-300 dark:border-[#80609f]/15"
+  }
+`}
             >
-              <div>
+              <div className="flex-1 min-w-0">
                 <p className="truncate w-full">
                   {chat.messages.length > 0
                     ? chat.messages[0].content.slice(0, 32)

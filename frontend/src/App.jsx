@@ -9,10 +9,10 @@ import "./assets/prism.css";
 import Loading from "./pages/Loading";
 import Login from "./pages/Login";
 import { useAppContext } from "./contexts/Appcontext";
-import {Toaster} from "react-hot-toast"
+import { Toaster } from "react-hot-toast";
 
 const App = () => {
-  const { user , loadinguser } = useAppContext();
+  const { user, loadinguser } = useAppContext();
   const [menuopen, setmenuopen] = useState(false);
   const { pathname } = useLocation();
 
@@ -32,7 +32,7 @@ const App = () => {
           )}
 
           <div className="dark:bg-linear-to-b from-[#242124] to-[#000000] dark:text-white">
-            <div className="flex h-screen w-screen">
+            <div className="flex min-h-[100dvh] w-full overflow-hidden">
               <Sidebar menuopen={menuopen} setmenuopen={setmenuopen} />
 
               <Routes>
@@ -47,10 +47,9 @@ const App = () => {
         <Login />
       )}
 
-      <Toaster/>
+      <Toaster />
     </>
   );
 };
-
 
 export default App;
