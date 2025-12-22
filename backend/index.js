@@ -12,12 +12,13 @@ const app = express();
 
 await connectDatabase();
 
+//stripe webhook
+app.post("/api/stripe",express.raw({type:"application/json"}),stripeWebHooks)
+
 //middleware
 app.use(cors());
 app.use(express.json());
 
-//stripe webhook
-app.post("/api/stripe",express.raw({type:"application/json"}),stripeWebHooks)
 
 //routes
 app.get("/",(req,res)=>{
