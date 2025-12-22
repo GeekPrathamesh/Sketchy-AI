@@ -8,7 +8,7 @@ export const createChat = async (req, res) => {
     const chatData = {
       userId,
       messages: [],
-      name: "New Chat",
+      name: "Initialize the new chat..",
       userName: req.user.name,
     };
 

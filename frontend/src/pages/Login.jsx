@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useAppContext } from "../contexts/Appcontext";
+import toast from "react-hot-toast";
 
 const Login = () => {
   const [isSignup, setIsSignup] = useState(false);
@@ -7,21 +9,46 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setLoading(true);
+  const {axios,settoken}=useAppContext();
 
-    setTimeout(() => {
-      if (isSignup) {
-        console.log({ name, email, password });
-        alert("Account created (dummy)");
-      } else {
-        console.log({ email, password });
-        alert("Login successful (dummy)");
-      }
-      setLoading(false);
-    }, 1000);
-  };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+
+  try {
+    const url = isSignup
+      ? "/api/user/register"
+      : "/api/user/login";
+
+    const payload = isSignup
+      ? { name, email, password }
+      : { email, password };
+
+    const { data } = await axios.post(url, payload);
+
+    if (data.success) {
+      toast.success(isSignup ? "Account created" : "Login successful");
+
+      // Save token
+      settoken(data.token);
+      localStorage.setItem("token", data.token);
+
+      // Reset form
+      setName("");
+      setEmail("");
+      setPassword("");
+
+
+    } else {
+      toast.error("Authentication failed");
+    }
+  } catch (error) {
+    toast.error(error.response?.data?.message || error.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
      <div className="h-screen w-full flex overflow-hidden bg-purple-50 dark:bg-[#0f0b14]">

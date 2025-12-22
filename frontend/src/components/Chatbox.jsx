@@ -2,21 +2,79 @@ import React, { useEffect, useRef, useState } from "react";
 import { useAppContext } from "../contexts/Appcontext";
 import { assets } from "../assets/assets";
 import Message from "./Message";
+import toast from "react-hot-toast";
 
 const Chatbox = () => {
   const containerRef = useRef(null);
   const textareaRef = useRef(null);
 
-  const { selectedchat, theme } = useAppContext();
+  const {
+    navigate,
+    user,
+    setuser,
+    chats,
+    setchats,
+    selectedchat,
+    setselectedchat,
+    theme,
+    settheme,
+    createNewchat,
+    loadinguser,
+    fetchUserchats,
+    token,
+    settoken,
+    axios,
+  } = useAppContext();
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const [prompt, setpromt] = useState("");
   const [mode, setmode] = useState("text");
-  const [published, setpublished] = useState("false");
+  const [published, setpublished] = useState(false);
 
   const onsubmit = async (e) => {
-    e.preventDefault();
+    try {
+      e.preventDefault();
+      if(!prompt.trim()) return toast.error("enter the prompt first");
+      if (!user) return toast("login to interact with sketchy ai");
+      setLoading(true);
+      const promptcopy = prompt;
+      setpromt("");
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "user",
+          content: prompt,
+          timestamp: Date.now(),
+          isImage: false,
+        },
+      ]);
+
+      const { data } = await axios.post(
+        `/api/message/${mode}`,
+        { chatId: selectedchat._id, prompt, isPublished: published },
+        { headers: { Authorization: token } }
+      );
+
+      if (data.success) {
+        setMessages((prev) => [...prev, data.reply]);
+        // decrease credits
+        if (mode === "image") {
+          setuser((prev) => ({ ...prev, credits: prev.credits - 2 }));
+        } else {
+          setuser((prev) => ({ ...prev, credits: prev.credits - 1 }));
+        }
+      } else {
+        toast.error(data.message);
+        setpromt(promptcopy);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || error.message);
+    } finally {
+      setpromt("");
+      setLoading(false);
+      setpublished(false);
+    }
   };
 
   useEffect(() => {
@@ -33,6 +91,12 @@ const Chatbox = () => {
       });
     }
   }, [messages]);
+
+  useEffect(() => {
+    if (mode !== "image") {
+      setpublished(false);
+    }
+  }, [mode]);
 
   return (
     <div className="flex flex-1 justify-between m-5 md:m-10 xl:mx-30 max-md:mt-14 2xl:pr-20 flex-col  ">
