@@ -52,14 +52,19 @@ const Sidebar = ({ menuopen, setmenuopen }) => {
   };
 
   return (
-    <div
-      className={`
-      flex flex-col h-screen min-w-72 p-5
-      dark:bg-gradient-to-b dark:from-[#242124]/30 dark:to-[#000000]/30
-      border-r border-[#80609F]/30 backdrop-blur-3xl
-      transition-all duration-500
-      max-md:absolute left-0 z-10 ${!menuopen && "max-md:-translate-x-full"}`}
-    >
+<div
+  className={`
+    sticky top-0
+    flex flex-col h-screen min-w-72 p-5
+    dark:bg-gradient-to-b dark:from-[#242124]/30 dark:to-[#000000]/30
+    border-r border-[#80609F]/30 backdrop-blur-3xl
+    transition-all duration-500
+    z-10
+    max-md:absolute left-0
+    ${!menuopen && "max-md:-translate-x-full"}
+  `}
+>
+
       {/* logo */}
       <img
         src={theme === "dark" ? assets.logo_full : assets.logo_full_dark}

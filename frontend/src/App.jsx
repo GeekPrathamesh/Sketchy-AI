@@ -32,7 +32,7 @@ const App = () => {
           )}
 
           <div className="dark:bg-linear-to-b from-[#242124] to-[#000000] dark:text-white">
-            <div className="flex min-h-[100dvh] w-full overflow-hidden">
+            <div className="flex min-h-[100dvh] w-full ">
               <Sidebar menuopen={menuopen} setmenuopen={setmenuopen} />
 
               <Routes>

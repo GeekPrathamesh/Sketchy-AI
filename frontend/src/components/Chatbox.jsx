@@ -35,43 +35,102 @@ const Chatbox = () => {
   const onsubmit = async (e) => {
     try {
       e.preventDefault();
-      if(!prompt.trim()) return toast.error("enter the prompt first");
+      if (!prompt.trim()) return toast.error("enter the prompt first");
       if (!user) return toast("login to interact with sketchy ai");
+
       setLoading(true);
-      const promptcopy = prompt;
+      const userPrompt = prompt;
       setpromt("");
+
+      // add user message immediately
       setMessages((prev) => [
         ...prev,
         {
           role: "user",
-          content: prompt,
+          content: userPrompt,
           timestamp: Date.now(),
           isImage: false,
         },
       ]);
 
-      const { data } = await axios.post(
-        `/api/message/${mode}`,
-        { chatId: selectedchat._id, prompt, isPublished: published },
-        { headers: { Authorization: token } }
-      );
+      // text mode
+      if (mode === "text") {
+        const response = await fetch(
+          `${import.meta.env.VITE_SERVER_URL}/api/message/text`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: token,
+            },
+            body: JSON.stringify({
+              chatId: selectedchat._id,
+              prompt: userPrompt,
+            }),
+          }
+        );
 
-      if (data.success) {
-        setMessages((prev) => [...prev, data.reply]);
-        // decrease credits
-        if (mode === "image") {
-          setuser((prev) => ({ ...prev, credits: prev.credits - 2 }));
-        } else {
-          setuser((prev) => ({ ...prev, credits: prev.credits - 1 }));
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+
+        let assistantMessage = {
+          role: "assistant",
+          content: "",
+          timestamp: Date.now(),
+          isImage: false,
+        };
+
+        setMessages((prev) => [...prev, assistantMessage]);
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value);
+          const lines = chunk.split("\n");
+
+          for (const line of lines) {
+            if (!line.startsWith("data: ")) continue;
+
+            const token = line.replace("data: ", "");
+
+            if (token === "[DONE]") {
+              setuser((prev) => ({ ...prev, credits: prev.credits - 1 }));
+              setLoading(false);
+              return;
+            }
+
+            assistantMessage.content += token;
+
+            setMessages((prev) => {
+              const updated = [...prev];
+              updated[updated.length - 1] = { ...assistantMessage };
+              return updated;
+            });
+          }
         }
-      } else {
-        toast.error(data.message);
-        setpromt(promptcopy);
+      }
+
+      /* ===================== IMAGE MODE (NORMAL) ===================== */
+      if (mode === "image") {
+        const { data } = await axios.post(
+          `/api/message/image`,
+          {
+            chatId: selectedchat._id,
+            prompt: userPrompt,
+            isPublished: published,
+          },
+          { headers: { Authorization: token } }
+        );
+
+        if (!data.success) throw new Error(data.message);
+
+        setMessages((prev) => [...prev, data.reply]);
+        setuser((prev) => ({ ...prev, credits: prev.credits - 2 }));
       }
     } catch (error) {
       toast.error(error.response?.data?.message || error.message);
     } finally {
-      setpromt("");
       setLoading(false);
       setpublished(false);
     }
@@ -142,10 +201,21 @@ const Chatbox = () => {
       )}
 
       {/* prompt for chatting section  */}
-      <form
-        onSubmit={onsubmit}
-        className="bg-primary/20 dark:bg-[#583C79]/30 border border-primary dark:border-[#80609F]/30 rounded-2xl w-full max-w-2xl p-3 pl-4 mx-auto flex gap-4 items-center"
-      >
+<form
+  onSubmit={onsubmit}
+  className="
+    fixed bottom-4 left-1/2 -translate-x-1/2
+    w-[calc(100%-2rem)] max-w-2xl
+    bg-primary/20 dark:bg-[#583C79]/30
+    border border-primary dark:border-[#80609F]/30
+    rounded-2xl
+    p-3 pl-4
+    flex gap-4 items-center
+    backdrop-blur-xl
+    z-30
+  "
+>
+
         <select
           className="text-sm pl-3 pr-2 outline-null"
           onChange={(e) => setmode(e.target.value)}

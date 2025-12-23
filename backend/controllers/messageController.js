@@ -49,36 +49,49 @@ export const textMessageController = async (req, res) => {
     });
 
     //  Call AI
-    const response = await openai.chat.completions.create({
-      model: "llama-3.1-8b-instant",
-      messages: [
-        { role: "system", content: "You are a helpful assistant." },
-        { role: "user", content: prompt },
-      ],
-    });
+  // 🔹 SSE headers
+res.setHeader("Content-Type", "text/event-stream");
+res.setHeader("Cache-Control", "no-cache");
+res.setHeader("Connection", "keep-alive");
 
-    // Save assistant reply
-    if (!response.choices?.length) {
-      throw new Error("No response from Groq");
-    }
+let fullAssistantMessage = "";
 
-    const reply = {
-      role: "assistant",
-      content: response.choices[0].message.content,
-      timestamp: Date.now(),
-      isImage: false,
-    };
+// 🔹 Stream AI response
+const stream = await openai.chat.completions.create({
+  model: "llama-3.1-8b-instant",
+  stream: true,
+  messages: [
+    { role: "system", content: "You are a helpful assistant." },
+    { role: "user", content: prompt },
+  ],
+});
 
-    chat.messages.push(reply);
+for await (const chunk of stream) {
+  const token = chunk.choices[0]?.delta?.content;
 
-    // Save chat
-    await chat.save();
+  if (token) {
+    fullAssistantMessage += token;
 
-    // Respond
-    res.status(200).json({
-      success: true,
-      reply,
-    });
+    // send chunk to frontend
+    res.write(`data: ${token}\n\n`);
+  }
+}
+
+// 🔹 Save assistant message AFTER streaming
+const reply = {
+  role: "assistant",
+  content: fullAssistantMessage,
+  timestamp: Date.now(),
+  isImage: false,
+};
+
+chat.messages.push(reply);
+await chat.save();
+
+// 🔹 End stream
+res.write("data: [DONE]\n\n");
+res.end();
+
   } catch (error) {
     console.error("Text message error:", error);
 
