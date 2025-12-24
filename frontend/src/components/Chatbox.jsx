@@ -158,9 +158,9 @@ const Chatbox = () => {
   }, [mode]);
 
   return (
-    <div className="flex flex-1 justify-between m-5 md:m-10 xl:mx-30 max-md:mt-14 2xl:pr-20 flex-col  ">
+    <div className="flex flex-1 justify-between m-4 md:m-10 xl:mx-30 max-md:mt-14 2xl:pr-20 flex-col  ">
       {/* chat messages    */}
-      <div ref={containerRef} className="flex-1 mb-5 overflow-y-scroll">
+      <div ref={containerRef} className="flex-1 mb-10 overflow-y-scroll">
         {messages.length === 0 && (
           <div className="h-full flex flex-col items-center justify-center gap-2 text-primary">
             <img
@@ -188,75 +188,83 @@ const Chatbox = () => {
         )}
       </div>
 
-      {mode === "image" && (
-        <label className="inline-flex items-center gap-2 mb-3 text-sm mx-auto ">
-          <p className="text-xs ">Publish Generated image to the community</p>
-          <input
-            type="checkbox"
-            className="cursor-pointer"
-            checked={published}
-            onChange={(e) => setpublished(e.target.checked)}
-          />
-        </label>
-      )}
-
-      {/* prompt for chatting section  */}
-<form
+   <form
   onSubmit={onsubmit}
   className="
-    fixed bottom-4 left-1/2 -translate-x-1/2
+    fixed bottom-5 left-1/2 -translate-x-1/2
     w-[calc(100%-2rem)] max-w-2xl
     bg-primary/20 dark:bg-[#583C79]/30
     border border-primary dark:border-[#80609F]/30
-    rounded-2xl
-    p-3 pl-4
-    flex gap-4 items-center
+    rounded-xl
     backdrop-blur-xl
     z-30
   "
 >
-
-        <select
-          className="text-sm pl-3 pr-2 outline-null"
-          onChange={(e) => setmode(e.target.value)}
-          value={mode}
-        >
-          <option value="text" className="dark:bg-purple-900">
-            Text
-          </option>
-          <option value="image" className="dark:bg-purple-900">
-            Image
-          </option>
-        </select>
-        <textarea
-          ref={textareaRef}
-          placeholder="enter your prompt here.."
-          className="flex-1 w-full text-md outline-none resize-none overflow-y-auto bg-transparent"
-          rows={1}
-          value={prompt}
-          onChange={(e) => {
-            setpromt(e.target.value);
-
-            const el = textareaRef.current;
-            el.style.height = "auto";
-            el.style.height = Math.min(el.scrollHeight, 160) + "px";
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              onsubmit(e);
-            }
-          }}
+  {/* IMAGE MODE SECTION */}
+  {mode === "image" && (
+    <div className="px-4 py-1.5 border-b border-white/10">
+      <label className="mx-auto w-fit flex items-center gap-2 text-[11px] text-gray-300">
+        <input
+          type="checkbox"
+          className="cursor-pointer scale-90"
+          checked={published}
+          onChange={(e) => setpublished(e.target.checked)}
         />
+        Publish generated image to the community
+      </label>
+    </div>
+  )}
 
-        <button disabled={loading}>
-          <img
-            src={loading ? assets.stop_icon : assets.send_icon}
-            alt=""
-            className="w-8 cursor-pointer"
-          />
-        </button>
-      </form>
+  {/* INPUT SECTION */}
+  <div className="px-4 py-2 flex gap-3 items-center">
+    <select
+      className="text-xs px-2 outline-none bg-transparent"
+      onChange={(e) => setmode(e.target.value)}
+      value={mode}
+    >
+      <option value="text" className="dark:bg-purple-900">
+        Text
+      </option>
+      <option value="image" className="dark:bg-purple-900">
+        Image
+      </option>
+    </select>
+
+    <textarea
+      ref={textareaRef}
+      placeholder="enter your prompt here.."
+      className="
+        flex-1 w-full text-sm
+        outline-none resize-none
+        overflow-y-auto bg-transparent
+      "
+      rows={1}
+      value={prompt}
+      onChange={(e) => {
+        setpromt(e.target.value);
+        const el = textareaRef.current;
+        el.style.height = "auto";
+        el.style.height = Math.min(el.scrollHeight, 140) + "px";
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          onsubmit(e);
+        }
+      }}
+    />
+
+    <button disabled={loading}>
+      <img
+        src={loading ? assets.stop_icon : assets.send_icon}
+        alt=""
+        className="w-7 cursor-pointer"
+      />
+    </button>
+  </div>
+</form>
+
+
     </div>
   );
 };

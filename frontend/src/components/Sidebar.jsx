@@ -59,11 +59,12 @@ const Sidebar = ({ menuopen, setmenuopen }) => {
     dark:bg-gradient-to-b dark:from-[#242124]/30 dark:to-[#000000]/30
     border-r border-[#80609F]/30 backdrop-blur-3xl
     transition-all duration-500
-    z-10
-    max-md:absolute left-0
+    z-40
+    max-md:absolute max-md:fixed max-md:top-0 left-0
     ${!menuopen && "max-md:-translate-x-full"}
   `}
 >
+
 
       {/* logo */}
       <img
@@ -76,7 +77,8 @@ const Sidebar = ({ menuopen, setmenuopen }) => {
       <button
         onClick={() => {
           createNewchat();
-          navigate("/");
+          setmenuopen(false);
+
         }}
         className="
           flex justify-center items-center w-full py-2 mt-10
